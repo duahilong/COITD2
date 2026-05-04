@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COITD 测速控制</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #081120;
+            --panel: rgba(15, 23, 42, 0.86);
+            --panel-soft: rgba(30, 41, 59, 0.72);
+            --line: rgba(148, 163, 184, 0.2);
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-2: #22c55e;
+            --warn: #f59e0b;
+            --danger: #f87171;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+            background: radial-gradient(circle at top, #11203d 0%, var(--bg) 56%);
+            color: var(--text);
+        }
+
+        .wrap {
+            width: min(1380px, calc(100vw - 32px));
+            margin: 22px auto;
+            display: grid;
+            gap: 18px;
+        }
+
+        .hero, .panel {
+            border: 1px solid var(--line);
+            background: var(--panel);
+            border-radius: 22px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+        }
+
+        .hero {
+            padding: 26px 28px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .hero h1 {
+            margin: 0 0 10px;
+            font-size: 32px;
+        }
+
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 12px;
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .btn-start { background: linear-gradient(135deg, #0ea5e9, #2563eb); }
+        .btn-stop { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .btn-restart { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .btn-link { background: linear-gradient(135deg, #334155, #1e293b); text-decoration: none; display: inline-flex; align-items: center; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 18px;
+        }
+
+        .panel {
+            padding: 20px 22px;
+        }
+
+        .panel h2 {
+            margin: 0 0 16px;
+            font-size: 22px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .stat {
+            padding: 14px 16px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: var(--panel-soft);
+        }
+
+        .label {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .value {
+            font-size: 18px;
+            font-weight: 700;
+            word-break: break-word;
+        }
+
+        .mono {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .status.idle, .status.stopped { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
+        .status.running { background: rgba(56, 189, 248, 0.18); color: #67e8f9; }
+        .status.success { background: rgba(34, 197, 94, 0.18); color: #4ade80; }
+        .status.failed, .status.error { background: rgba(248, 113, 113, 0.18); color: #fca5a5; }
+
+        .result-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .result-item {
+            padding: 14px 16px;
+            border-radius: 16px;
+            border: 1px solid var(--line);
+            background: var(--panel-soft);
+        }
+
+        .result-item strong {
+            font-size: 18px;
+        }
+
+        .result-meta {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .empty {
+            padding: 18px;
+            border: 1px dashed var(--line);
+            border-radius: 16px;
+            color: var(--muted);
+            background: rgba(15, 23, 42, 0.48);
+        }
+
+        @media (max-width: 980px) {
+            .hero, .grid {
+                grid-template-columns: 1fr;
+                display: grid;
+            }
+
+            .hero-actions {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <section class="hero">
+            <div>
+                <h1>COITD 测速控制</h1>
+                <p>这里负责把系统配置、二进制执行、结果解析和最新测速结果串成闭环。当前页面会直接展示运行状态、命令预览以及最近一次结构化解析结果。</p>
+            </div>
+            <div class="hero-actions">
+                <form method="post" action="/binary-control/start"><button class="btn btn-start" type="submit">开始测速</button></form>
+                <form method="post" action="/binary-control/stop"><button class="btn btn-stop" type="submit">停止测速</button></form>
+                <form method="post" action="/binary-control/restart"><button class="btn btn-restart" type="submit">重新运行</button></form>
+                <a class="btn btn-link" href="/config">打开系统配置</a>
+            </div>
+        </section>
+
+        <div class="grid">
+            <section class="panel">
+                <h2>运行状态</h2>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="label">当前状态</div>
+                        <div class="value"><span class="status {{ state.status }}">{{ state.status }}</span></div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">任务 ID</div>
+                        <div class="value mono">{{ state.task_id }}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">进程 PID</div>
+                        <div class="value">{{ state.pid or '暂无' }}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">触发方式</div>
+                        <div class="value">{{ state.trigger_source }}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">开始时间</div>
+                        <div class="value mono">{{ state.started_at or '暂无' }}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">结束时间</div>
+                        <div class="value mono">{{ state.finished_at or '暂无' }}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">二进制路径</div>
+                        <div class="value mono">{{ state.binary_path }}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">工作目录</div>
+                        <div class="value mono">{{ state.working_directory }}</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>结果摘要</h2>
+                {% if latest_result.best_ip %}
+                <div class="result-item">
+                    <strong>{{ latest_result.best_ip.address }}</strong>
+                    <div class="result-meta">
+                        <span>地区 {{ latest_result.best_ip.region }}</span>
+                        <span>延迟 {{ '%.2f'|format(latest_result.best_ip.latency_ms) }} ms</span>
+                        <span>速度 {{ '%.2f'|format(latest_result.best_ip.speed_mbps) }} MB/s</span>
+                        <span>丢包 {{ '%.2f'|format(latest_result.best_ip.loss_rate) }}%</span>
+                    </div>
+                </div>
+                <div class="result-list" style="margin-top: 12px;">
+                    {% for item in latest_result.top_ips %}
+                    <div class="result-item">
+                        <strong>{{ item.address }}</strong>
+                        <div class="result-meta">
+                            <span>#{{ item.rank }}</span>
+                            <span>{{ item.region }}</span>
+                            <span>{{ '%.2f'|format(item.latency_ms) }} ms</span>
+                            <span>{{ '%.2f'|format(item.speed_mbps) }} MB/s</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty">当前还没有结构化测速结果。运行一次 COITD 测试后，系统会自动把 CSV 结果解析成可展示的 JSON 结果。</div>
+                {% endif %}
+            </section>
+        </div>
+
+        <section class="panel">
+            <h2>执行上下文</h2>
+            <div class="stats">
+                <div class="stat" style="grid-column: 1 / -1;">
+                    <div class="label">命令预览</div>
+                    <div class="value mono">{{ state.command_preview }}</div>
+                </div>
+                <div class="stat">
+                    <div class="label">结果文件路径</div>
+                    <div class="value mono">{{ state.result_path or '暂无' }}</div>
+                </div>
+                <div class="stat">
+                    <div class="label">解析记录数</div>
+                    <div class="value">{{ latest_result.record_count }}</div>
+                </div>
+                <div class="stat">
+                    <div class="label">标准输出日志</div>
+                    <div class="value mono">{{ state.stdout_path or '暂无' }}</div>
+                </div>
+                <div class="stat">
+                    <div class="label">错误输出日志</div>
+                    <div class="value mono">{{ state.stderr_path or '暂无' }}</div>
+                </div>
+                <div class="stat" style="grid-column: 1 / -1;">
+                    <div class="label">最近错误</div>
+                    <div class="value">{{ state.last_error or '暂无' }}</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

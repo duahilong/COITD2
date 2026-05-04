@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "kind": "schedule_definition",
+  "id": "schedule_hourly_ipv4",
+  "source": "web_console",
+  "timestamps": {
+    "created_at": "2026-05-04T10:00:00Z",
+    "updated_at": "2026-05-04T10:00:00Z"
+  },
+  "meta": {},
+  "payload": {
+    "schedule_name": "每小时 IPv4 优选",
+    "template_id": "template_default_ipv4",
+    "enabled": true,
+    "timer": {
+      "mode": "calendar",
+      "expression": "0 */1 * * *"
+    },
+    "last_run_at": null,
+    "next_run_at": null
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "version": "1.0",
+  "kind": "task_result",
+  "id": "local_test",
+  "source": "cfst_adapter",
+  "timestamps": {
+    "created_at": "2026-05-04T15:40:42.407097Z",
+    "updated_at": "2026-05-04T15:40:42.407109Z"
+  },
+  "meta": {
+    "task_id": "local_test",
+    "result_path": "data\\results\\test_local.csv",
+    "command_preview": null,
+    "record_count": 3
+  },
+  "payload": {
+    "selected_ips": [
+      {
+        "address": "172.64.229.115",
+        "family": "ipv4",
+        "latency_ms": 89.33,
+        "speed_mbps": 47.51,
+        "loss_rate": 0.0,
+        "region": "NRT",
+        "rank": 1,
+        "sent": 4,
+        "received": 4
+      },
+      {
+        "address": "104.18.42.114",
+        "family": "ipv4",
+        "latency_ms": 91.43,
+        "speed_mbps": 0.83,
+        "loss_rate": 0.0,
+        "region": "SIN",
+        "rank": 2,
+        "sent": 4,
+        "received": 4
+      },
+      {
+        "address": "172.64.40.51",
+        "family": "ipv4",
+        "latency_ms": 90.94,
+        "speed_mbps": 0.4,
+        "loss_rate": 0.0,
+        "region": "SIN",
+        "rank": 3,
+        "sent": 4,
+        "received": 4
+      }
+    ],
+    "parameter_snapshot": {}
+  }
+}

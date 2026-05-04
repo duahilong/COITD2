@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "kind": "task_result",
+  "id": "task_20260504_0001",
+  "source": "cfst_adapter",
+  "timestamps": {
+    "created_at": "2026-05-04T10:10:00Z",
+    "updated_at": "2026-05-04T10:10:00Z"
+  },
+  "meta": {
+    "task_id": "task_20260504_0001"
+  },
+  "payload": {
+    "selected_ips": [
+      {
+        "address": "1.1.1.1",
+        "family": "ipv4",
+        "latency_ms": 89.2,
+        "speed_mbps": 23.4,
+        "loss_rate": 0,
+        "region": "HKG",
+        "rank": 1
+      },
+      {
+        "address": "1.0.0.1",
+        "family": "ipv4",
+        "latency_ms": 91.5,
+        "speed_mbps": 21.8,
+        "loss_rate": 0,
+        "region": "SIN",
+        "rank": 2
+      }
+    ]
+  }
+}

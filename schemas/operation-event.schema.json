@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://coitd2.local/schemas/operation-event.schema.json",
+  "allOf": [
+    {
+      "$ref": "./base-envelope.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "operation_event"
+        },
+        "payload": {
+          "type": "object",
+          "required": ["action", "target", "message"],
+          "properties": {
+            "action": { "type": "string" },
+            "target": { "type": "string" },
+            "message": { "type": "string" },
+            "level": { "enum": ["info", "warning", "error"] },
+            "details": { "type": "object" }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

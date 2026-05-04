@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://coitd2.local/schemas/task-run.schema.json",
+  "allOf": [
+    {
+      "$ref": "./base-envelope.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "task_run"
+        },
+        "payload": {
+          "type": "object",
+          "required": ["status", "trigger_source", "parameter_snapshot"],
+          "properties": {
+            "status": {
+              "enum": ["pending", "running", "success", "failed", "timeout", "cancelled", "stopping", "restarting"]
+            },
+            "trigger_source": { "type": "string" },
+            "pid": { "type": ["integer", "null"] },
+            "started_at": { "type": ["string", "null"], "format": "date-time" },
+            "finished_at": { "type": ["string", "null"], "format": "date-time" },
+            "stdout_path": { "type": ["string", "null"] },
+            "stderr_path": { "type": ["string", "null"] },
+            "result_path": { "type": ["string", "null"] },
+            "parameter_snapshot": { "type": "object" }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

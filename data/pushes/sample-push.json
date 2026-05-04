@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "kind": "dns_push_record",
+  "id": "push_20260504_0001",
+  "source": "dns_service",
+  "timestamps": {
+    "created_at": "2026-05-04T10:11:00Z",
+    "updated_at": "2026-05-04T10:11:00Z"
+  },
+  "meta": {
+    "task_id": "task_20260504_0001"
+  },
+  "payload": {
+    "provider": "cloudflare",
+    "target": {
+      "zone": "example.com",
+      "record_name": "cdn",
+      "record_type": "A"
+    },
+    "selected_ips": [
+      {
+        "address": "1.1.1.1",
+        "latency_ms": 89.2,
+        "speed_mbps": 23.4
+      }
+    ],
+    "before_records": ["2.2.2.2"],
+    "after_records": ["1.1.1.1"],
+    "status": "success",
+    "response_summary": {
+      "request_id": "sample-request-id",
+      "message": "updated"
+    }
+  }
+}
