@@ -7,7 +7,7 @@ DEFAULT_TEMPLATE_FILE = TEMPLATE_DIR / "default.json"
 BINARY_STATE_FILE = CONFIG_DIR / "binary_state.json"
 SAMPLE_TASK_FILE = RUN_DIR / "sample-task.json"
 SAMPLE_RESULT_FILE = RESULT_DIR / "sample-task.json"
-SAMPLE_LOG_INDEX_FILE = DATA_LOG_DIR / "sample-task.json"
+SAMPLE_LOG_INDEX_FILE = RUN_DIR / "sample-task.json"
 SAMPLE_PUSH_FILE = PUSH_DIR / "sample-push.json"
 SAMPLE_SCHEDULE_FILE = SCHEDULE_DIR / "sample-schedule.json"
 
