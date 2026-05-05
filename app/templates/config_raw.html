@@ -259,6 +259,7 @@
             font-size: 13px;
             color: #c62828;
             display: none;
+            white-space: pre-wrap;
         }
 
         .error-message.show {
@@ -382,8 +383,8 @@
             </div>
 
             <div class="format-btns">
-                <button type="button" class="format-btn active" onclick="setIndent(2)">2空格缩进</button>
-                <button type="button" class="format-btn" onclick="setIndent(4)">4空格缩进</button>
+                <button type="button" class="format-btn active" onclick="setIndent(2, event)">2空格缩进</button>
+                <button type="button" class="format-btn" onclick="setIndent(4, event)">4空格缩进</button>
                 <button type="button" class="format-btn" onclick="formatJson()">格式化</button>
                 <button type="button" class="format-btn" onclick="minifyJson()">压缩</button>
             </div>
@@ -394,7 +395,7 @@
                     <textarea name="config_json" class="json-editor" id="json-editor" spellcheck="false">{{ config_json }}</textarea>
                 </div>
 
-                <div class="error-message" id="error-message"></div>
+                <div class="error-message{% if server_error %} show{% endif %}" id="error-message">{{ server_error or '' }}</div>
 
                 <div class="status-bar">
                     <div class="status-item">
@@ -423,7 +424,7 @@
                     <li><span class="help-code">sections.dns</span> - DNS推送配置，包含阿里云和Cloudflare设置</li>
                     <li><span class="help-code">sections.system</span> - 系统设置，包含Web服务、定时任务、日志等配置</li>
                     <li>修改后点击"保存配置"按钮，系统会自动验证JSON格式并保存</li>
-                    <li>如果JSON格式错误，系统会显示错误信息且不会保存</li>
+                    <li>如果JSON格式或结构错误，页面会显示具体错误原因且不会保存</li>
                 </ul>
             </div>
         </div>
@@ -437,6 +438,7 @@
         const statusDot = document.getElementById('status-dot');
         const statusText = document.getElementById('status-text');
         const errorMessage = document.getElementById('error-message');
+        const initialServerError = errorMessage.textContent.trim();
         let originalContent = editor.value;
         let indentSize = 2;
 
@@ -455,19 +457,30 @@
             lineNumbers.scrollTop = editor.scrollTop;
         }
 
+        function setValidationState(valid, message) {
+            statusDot.className = 'status-dot ' + (valid ? 'valid' : 'invalid');
+            statusText.textContent = valid ? 'JSON格式有效' : 'JSON存在错误';
+            if (message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.add('show');
+            } else {
+                errorMessage.textContent = '';
+                errorMessage.classList.remove('show');
+            }
+            if (valid) {
+                editor.classList.remove('error');
+            } else {
+                editor.classList.add('error');
+            }
+        }
+
         function validateJson() {
             try {
                 JSON.parse(editor.value);
-                statusDot.className = 'status-dot valid';
-                statusText.textContent = 'JSON格式有效';
-                errorMessage.classList.remove('show');
+                setValidationState(true, '');
                 return true;
             } catch (e) {
-                statusDot.className = 'status-dot invalid';
-                statusText.textContent = 'JSON格式错误';
-                errorMessage.textContent = '错误: ' + e.message;
-                errorMessage.classList.add('show');
-                editor.classList.add('error');
+                setValidationState(false, '错误: ' + e.message);
                 return false;
             }
         }
@@ -506,10 +519,12 @@
             }
         }
 
-        function setIndent(size) {
+        function setIndent(size, event) {
             indentSize = size;
             document.querySelectorAll('.format-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if (event) {
+                event.target.classList.add('active');
+            }
         }
 
         function resetToDefault() {
@@ -526,6 +541,7 @@
             editor.classList.remove('error');
             statusDot.className = 'status-dot pending';
             statusText.textContent = '已修改，等待验证';
+            errorMessage.textContent = '';
             errorMessage.classList.remove('show');
         });
 
@@ -550,7 +566,11 @@
         });
 
         updateLineNumbers();
-        validateJson();
+        if (initialServerError) {
+            setValidationState(false, initialServerError);
+        } else {
+            validateJson();
+        }
     </script>
 </body>
 </html>

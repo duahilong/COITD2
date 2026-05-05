@@ -22,10 +22,13 @@ class ParameterService:
             }
             for group in groups
         ]
+        enabled_params = sum(1 for group in ordered_groups for param in group["parameters"] if param["enabled"])
         return {
             "groups": ordered_groups,
             "command_preview": self.build_command_preview(),
+            "command_parts": command_parts,
             "total_params": sum(len(g["parameters"]) for g in ordered_groups),
+            "enabled_params": enabled_params,
         }
 
     def build_runtime_context(self) -> dict[str, Any]:
@@ -80,11 +83,13 @@ class ParameterService:
             display_parameter = {
                 "key": key,
                 "label": param.get("description", key),
+                "description": param.get("description", key),
                 "cli_flag": flag,
                 "type": param_type,
                 "default": value,
                 "enabled": enabled,
                 "value": value,
+                "required": param.get("required", False),
                 "validation": validation,
                 "validation_text": self._build_validation_text(validation),
             }

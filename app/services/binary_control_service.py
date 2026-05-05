@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, TextIO
@@ -96,7 +97,7 @@ class BinaryControlService:
         stderr_path = LOG_DIR / f"{task_id}.stderr.log"
         stdout_path.parent.mkdir(parents=True, exist_ok=True)
         stderr_path.parent.mkdir(parents=True, exist_ok=True)
-        command = [str(executable), *parameter_context["command_args"]]
+        command = self._build_command(executable, parameter_context["command_args"])
 
         self.stdout_handle = stdout_path.open("w", encoding="utf-8")
         self.stderr_handle = stderr_path.open("w", encoding="utf-8")
@@ -338,6 +339,11 @@ class BinaryControlService:
             return relative_candidate
         resolved = shutil.which(binary_path)
         return Path(resolved) if resolved else None
+
+    def _build_command(self, executable: Path, command_args: list[str]) -> list[str]:
+        if executable.suffix.lower() == ".py":
+            return [sys.executable, str(executable), *command_args]
+        return [str(executable), *command_args]
 
     def _close_log_handles(self) -> None:
         if self.stdout_handle and not self.stdout_handle.closed:

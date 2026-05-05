@@ -42,6 +42,8 @@ class DashboardService:
         schedule_data = self._read_json(schedules[0]) if schedules else self._read_json(SAMPLE_SCHEDULE_FILE)
         log_index = self._read_json(SAMPLE_LOG_INDEX_FILE)
         binary_state = self.binary_control_service.get_state()
+        runtime_context = self.config_service.get_runtime_context()
+        current_command_preview = self.config_service.build_command_preview()
 
         stdout_path = self._resolve_log_path(binary_state.get("stdout_path"))
         stderr_path = self._resolve_log_path(binary_state.get("stderr_path"))
@@ -74,9 +76,9 @@ class DashboardService:
             "schedule_enabled": schedule_payload.get("enabled", False),
             "next_run_at": schedule_payload.get("next_run_at") or "待接入 systemd 时间",
             "selected_ips": selected_ips[:2],
-            "binary_path": binary_state.get("binary_path", "cfst"),
-            "working_directory": binary_state.get("working_directory", "."),
-            "command_preview": binary_state.get("command_preview", "cfst"),
+            "binary_path": runtime_context.get("binary_path", "cfst"),
+            "working_directory": runtime_context.get("working_directory", "."),
+            "command_preview": current_command_preview,
             "last_error": binary_state.get("last_error"),
             "elapsed_seconds": elapsed_seconds,
         }
