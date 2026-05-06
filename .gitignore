@@ -33,14 +33,6 @@ env/
 *.swo
 *~
 
-# Sensitive configuration files
-.server-config.json
-data/configs/*.json
-!data/configs/.gitkeep
-
-# Logs
-logs/
-*.log
 
 # OS
 .DS_Store
